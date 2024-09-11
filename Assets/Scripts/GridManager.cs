@@ -32,7 +32,7 @@ public class GridManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        grid = new Grid(1f, startpo.transform.localPosition, cube, generationDepth);
+        grid = new Grid(1f, startpo.transform.position, cube, generationDepth);
 
     }
 

@@ -7,10 +7,9 @@ public class Grid
     GameObject cube;
     GameObject grid;
     Vector3 startPO;
-    HashSet<Vector3> occupiedPositions = new HashSet<Vector3>();
     int currentObjects = 0; // 当前生成的对象数
+    private Dictionary<Vector2Int, GameObject> occupiedPositions = new Dictionary<Vector2Int, GameObject>();
     int generationDepth;
-
 
     public Grid(float size, Vector3 startPO, GameObject cube, int generationDepth)
     {
@@ -29,23 +28,36 @@ public class Grid
     }
 
     // 创建对象的方法
-    private Transform CreateObjectAtPosition(Vector3 gridPosition, GameObject cube, int index)
+
+     Transform CreateObjectAtPosition(Vector3 gridPosition, GameObject cube, int index)
     {
-        if (occupiedPositions.Contains(gridPosition) || currentObjects >= Mathf.Pow(2 * generationDepth + 1, 2))
+        // 计算整数网格坐标
+        int xIndex = Mathf.RoundToInt((gridPosition.x - startPO.x) / size);//算法计算x和y的值，使其为整数，并存入字典用来记录，防止重复
+        int yIndex = Mathf.RoundToInt((gridPosition.y - startPO.y) / size);
+
+        Vector2Int gridCoord = new Vector2Int(xIndex, yIndex);
+
+        // 检查是否超出生成深度或位置已占用
+        if (xIndex < -generationDepth || xIndex > generationDepth ||
+            yIndex < -generationDepth || yIndex > generationDepth ||
+            occupiedPositions.ContainsKey(gridCoord)) // 使用整数坐标
         {
-            return null; // 位置已被占用或已经达到了对象数上限，不生成新的方块
+            return null; // 如果坐标超出范围或已有cube存在，不生成新对象
         }
 
-        // 添加到已占用位置集合中
-        occupiedPositions.Add(gridPosition);
+        // 将坐标转换回世界位置
+        Vector3 correctedPosition = new Vector3(xIndex * size + startPO.x, yIndex * size + startPO.y, 0);
 
-        GameObject newCube = GameObject.Instantiate(cube, gridPosition, Quaternion.identity);
+        // 添加到已占用位置集合中
+        GameObject newCube = GameObject.Instantiate(cube, correctedPosition, Quaternion.identity);
         newCube.transform.parent = grid.transform;
-        newCube.transform.localPosition = gridPosition;
         newCube.transform.localScale = new Vector3(0.18f, 0.18f, 0.18f);
         SpriteRenderer h = newCube.GetComponent<SpriteRenderer>();
         h.sortingOrder = 2;
         h.sprite = GridManager.instance.sprites[index];
+
+        // 将位置和对象存储到字典中
+        occupiedPositions[gridCoord] = newCube;
 
         currentObjects++; // 增加当前生成的对象数
         return newCube.transform;
@@ -55,6 +67,7 @@ public class Grid
     {
         // 使用一个队列来存储需要继续生成对象的位置
         Queue<Transform> queue = new Queue<Transform>();
+
         queue.Enqueue(startTran);
 
         int[,] directions = new int[,]
@@ -75,8 +88,8 @@ public class Grid
 
             for (int i = 0; i < directions.GetLength(0); i++)
             {
-                float dx = currentTran.localPosition.x + directions[i, 0] * size;
-                float dy = currentTran.localPosition.y + directions[i, 1] * size;
+                float dx = currentTran.position.x + directions[i, 0] * size;
+                float dy = currentTran.position.y + directions[i, 1] * size;
                 Vector3 position = new Vector3(dx, dy, 0);
 
                 int index = GetIndexFromPosition(position);
@@ -84,7 +97,7 @@ public class Grid
 
                 if (newCubeTransform != null)
                 {
-                    queue.Enqueue(newCubeTransform);
+                    queue.Enqueue(newCubeTransform);//不为空就加入队列，接着去迭代，等于空就去下一次循环
                 }
 
                 // 如果已达到最大对象数，则停止
@@ -103,8 +116,8 @@ public class Grid
         int y = Mathf.FloorToInt((position.y - startPO.y) / size);
 
         // 计算距离中心的层数
-        int centerX = Mathf.FloorToInt((startPO.x - startPO.x) / size);
-        int centerY = Mathf.FloorToInt((startPO.y - startPO.y) / size);
+        int centerX = 0; // 因为 startPO 已经在中心
+        int centerY = 0; // 因为 startPO 已经在中心
         int distance = Mathf.Max(Mathf.Abs(x - centerX), Mathf.Abs(y - centerY));
 
         return distance;
@@ -112,16 +125,21 @@ public class Grid
 
     public void setValue(Vector3 po)
     {
-        foreach (Vector3 position in occupiedPositions)
+        foreach (var kvp in occupiedPositions)
         {
+            Vector2Int position = kvp.Key;
+            GameObject cube = kvp.Value;
+
             // 计算点击位置是否在该 cube 的范围内
             float halfSize = size / 2f;
+            Vector3 cubePosition = new Vector3(position.x * size + startPO.x, position.y * size + startPO.y, 0);
 
-            if (po.x >= position.x - halfSize && po.x <= position.x + halfSize &&
-                po.y >= position.y - halfSize && po.y <= position.y + halfSize)
+            if (po.x >= cubePosition.x - halfSize && po.x <= cubePosition.x + halfSize &&
+                po.y >= cubePosition.y - halfSize && po.y <= cubePosition.y + halfSize)
             {
                 // 点击在 cube 上
-                Debug.Log($"Clicked on Cube at {position}");
+                Debug.Log($"Clicked on Cube at {cubePosition}");
+                Debug.Log($"Found GameObject: {cube.name}");
                 return;
             }
         }
