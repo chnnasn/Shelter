@@ -26,6 +26,8 @@ public class GameManager : MonoBehaviour
     [HideInInspector]
     public GameObject BuildUi;
     [HideInInspector]
+    public GameObject SetUi;
+    [HideInInspector]
     public Text food;
     [HideInInspector]
     public Text wood;
