@@ -158,7 +158,7 @@ public class Grid
                 //h.GetChild(2).GetComponentInChildren<Text>();
 
 
-                uiElement.localPosition = cubePosition * (float)((size * 10 + 4.5) / size);
+                uiElement.localPosition = cubePosition * (float)((size * 10 + (size / 2 - 0.2) * 10) / size);
 
                 return;
             }
