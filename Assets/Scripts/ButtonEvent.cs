@@ -29,7 +29,10 @@ public class ButtonEvent : MonoBehaviour, IPointerClickHandler
         }
         if (transform.name == "BuBuild") {
 
-            GridManager.instance.grid.makeBuild(transform.parent.parent.localPosition);
+            //if () {
+
+            //    GridManager.instance.grid.makeBuild(transform.parent.parent.localPosition);
+            //}
             GameManager.instance.BuildUi.SetActive(false);
         }
         if (transform.name == "DisFin") {

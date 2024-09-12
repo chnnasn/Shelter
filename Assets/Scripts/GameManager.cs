@@ -44,8 +44,9 @@ public class GameManager : MonoBehaviour
     public timerState timerState;
 
     public static GameManager instance;
-    [HideInInspector]
-    public static int NewDays = 1;
+
+   
+    public static int NewDays = 0;
 
     public static int MaxOut;
 
@@ -199,7 +200,6 @@ public class GameManager : MonoBehaviour
         FinishUi.SetActive(false);
         woodNum += WodNum;
         RockNum += RocNum;
-        pepleNum -= losePeople;
         pepleNum += getPeople;
 
     } 

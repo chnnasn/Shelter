@@ -145,14 +145,20 @@ public class Grid
 
                 RectTransform uiElement = GameManager.instance.BuildUi.transform.GetChild(0).GetChild(0).GetComponent<RectTransform>();
 ;
+                Transform h = uiElement.transform.GetChild(0);
 
-                uiElement.transform.GetChild(0).GetComponent<Image>().sprite = GridManager.instance.Buildsprites[
-                    GridManager.instance.sprites.IndexOf(cube.GetComponent<SpriteRenderer>().sprite)
-                    ];
+                int x = GridManager.instance.sprites.IndexOf(cube.GetComponent<SpriteRenderer>().sprite);
 
-                uiElement.transform.GetChild(0).GetComponentInChildren<Text>().text = uiElement.transform.GetChild(0).GetComponent<Image>().sprite.name;
+                h.GetComponent<Image>().sprite = GridManager.instance.Buildsprites[x];
 
-                uiElement.localPosition = cubePosition * (float)(20 / size);
+                h.GetChild(0).GetComponent<Text>().text = h.GetComponent<Image>().sprite.name;
+
+                //h.GetChild(1).GetComponentInChildren<Text>() = GridManager.instance.Builds[x].GetComponent<Maker>();
+
+                //h.GetChild(2).GetComponentInChildren<Text>();
+
+
+                uiElement.localPosition = cubePosition * (float)((size * 10 + 4.5) / size);
 
                 return;
             }

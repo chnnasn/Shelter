@@ -31,7 +31,7 @@ public class CountDown : MonoBehaviour
 
     private void HandleBroadcastEventWithParam(int totalSeconds)
     {
-        StartCoroutine(CountdownDown(Days[totalSeconds - 1], transform.GetChild(1).GetComponent<Text>()));
+        StartCoroutine(CountdownDown(Days[totalSeconds], transform.GetChild(1).GetComponent<Text>()));
     }
 
     IEnumerator CountdownDown(int totalSeconds, Text timerText)
@@ -63,5 +63,7 @@ public class CountDown : MonoBehaviour
         timerText.text = $"00:00:00";
 
         GameManager.instance.newState = newState.StopLoding;
+
+        
     }
 }
