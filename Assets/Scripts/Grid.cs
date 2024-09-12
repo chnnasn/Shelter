@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Grid
 {
@@ -10,12 +11,14 @@ public class Grid
     int currentObjects = 0; // 当前生成的对象数
     private Dictionary<Vector2Int, GameObject> occupiedPositions = new Dictionary<Vector2Int, GameObject>();
     int generationDepth;
+    float scale;
 
-    public Grid(float size, Vector3 startPO, GameObject cube, int generationDepth)
+    public Grid(float size, Vector3 startPO, GameObject cube, int generationDepth,float scale)
     {
         this.startPO = startPO;
         this.size = size;
         this.cube = cube;
+        this.scale = scale;
         this.generationDepth = generationDepth;
         grid = new GameObject("Grid");
 
@@ -51,7 +54,7 @@ public class Grid
         // 添加到已占用位置集合中
         GameObject newCube = GameObject.Instantiate(cube, correctedPosition, Quaternion.identity);
         newCube.transform.parent = grid.transform;
-        newCube.transform.localScale = new Vector3(0.18f, 0.18f, 0.18f);
+        newCube.transform.localScale = new Vector3(scale, scale, scale);
         SpriteRenderer h = newCube.GetComponent<SpriteRenderer>();
         h.sortingOrder = 2;
         h.sprite = GridManager.instance.sprites[index];
@@ -137,11 +140,52 @@ public class Grid
             if (po.x >= cubePosition.x - halfSize && po.x <= cubePosition.x + halfSize &&
                 po.y >= cubePosition.y - halfSize && po.y <= cubePosition.y + halfSize)
             {
-                // 点击在 cube 上
-                Debug.Log($"Clicked on Cube at {cubePosition}");
-                Debug.Log($"Found GameObject: {cube.name}");
+
+                GameManager.instance.BuildUi.SetActive(true);
+
+                RectTransform uiElement = GameManager.instance.BuildUi.transform.GetChild(0).GetChild(0).GetComponent<RectTransform>();
+;
+
+                uiElement.transform.GetChild(0).GetComponent<Image>().sprite = GridManager.instance.Buildsprites[
+                    GridManager.instance.sprites.IndexOf(cube.GetComponent<SpriteRenderer>().sprite)
+                    ];
+
+                uiElement.transform.GetChild(0).GetComponentInChildren<Text>().text = uiElement.transform.GetChild(0).GetComponent<Image>().sprite.name;
+
+                uiElement.localPosition = cubePosition * (float)(20 / size);
+
                 return;
             }
         }
+    }
+
+    public void makeBuild(Vector3 vector3) {
+
+        Vector3 po = vector3 / (float)(20 / 1.5);
+
+        foreach (var kvp in occupiedPositions)
+        {
+            Vector2Int position = kvp.Key;
+            GameObject cube = kvp.Value;
+
+            // 计算点击位置是否在该 cube 的范围内
+            float halfSize = size / 2f;
+
+            Vector3 cubePosition = new Vector3(position.x * size + startPO.x, position.y * size + startPO.y, 0);
+
+            if (po.x >= cubePosition.x - halfSize && po.x <= cubePosition.x + halfSize &&
+                po.y >= cubePosition.y - halfSize && po.y <= cubePosition.y + halfSize)
+            {
+                if (cube.transform.childCount == 0) {
+                    GameObject h = GameObject.Instantiate(GridManager.instance.Builds[Mathf.Max((int)(Mathf.Abs(cubePosition.x / size)),
+                        (int)(Mathf.Abs(cubePosition.y / size)))], cubePosition, Quaternion.identity);
+
+                    h.transform.SetParent(cube.transform);
+                    h.transform.localScale = new Vector3(1, 1, 1);
+                }
+            }
+        }
+
+
     }
 }
