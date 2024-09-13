@@ -1,6 +1,7 @@
-// GameManager.cs
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,14 +13,15 @@ public enum newState
     StopLoding
 }
 
-public enum timerState { 
+public enum timerState
+{
     TimerIng,
     NoIng
-
 }
 
 public class GameManager : MonoBehaviour
-{[HideInInspector]
+{
+    [HideInInspector]
     public GameObject DispatchUi;
     [HideInInspector]
     public GameObject FinishUi;
@@ -36,6 +38,8 @@ public class GameManager : MonoBehaviour
     [HideInInspector]
     public Slider stay;
 
+    public Text DayRduce;
+
     public int woodNum;
     public int RockNum;
     public int pepleNum;
@@ -47,17 +51,12 @@ public class GameManager : MonoBehaviour
 
     public static GameManager instance;
 
-   
     public static int NewDays = 0;
 
-    public static int MaxOut;
+    public static int Defence = 0;
 
-
-
-    public static event Action<int> EventWithLoding; // 定义带参数的事件
-                                                               
-    public static event Action<int> EventWithIng; // 定义带参数的事件
-
+    public static event Action<int> EventWithLoding;
+    public static event Action<int> EventWithIng;
 
     private void Awake()
     {
@@ -73,29 +72,34 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+
         timerState = timerState.NoIng;
         newState = newState.NoLoding;
         stay.onValueChanged.AddListener(OnSliderValueChanged);
+        UpdateSliderStep(); // 初始化滑块步长
     }
 
     void Update()
     {
 
-        if (timerState == timerState.NoIng) {
+        if (Input.GetKeyDown(KeyCode.Space)) {
 
+            Time.timeScale++;
+        
+        }
+
+        if (timerState == timerState.NoIng)
+        {
             StartCoroutine(AfterIng(NewDays));
-
             timerState = timerState.TimerIng;
         }
 
-
         if (newState == newState.startLoding)
         {
-            int peple = (int)(stay.value * pepleNum);
+            int peple = Mathf.CeilToInt(stay.value * Mathf.Min(pepleNum, 29)); // 使用滑块值和最大人数计算
 
             if (peple != 0 && peple <= pepleNum && peple * 200 <= foodNUm)
             {
-
                 pepleNum -= peple;
                 foodNUm -= peple * 200;
                 GetNewObejects(peple);
@@ -103,107 +107,163 @@ public class GameManager : MonoBehaviour
                 stay.value = 0;
 
                 newState = newState.Loding;
-
+                UpdateSliderStep(); // 更新滑块步长
             }
             else
             {
                 stay.value = 0;
                 newState = newState.NoLoding;
-
+                UpdateSliderStep(); // 更新滑块步长
             }
-
         }
 
         if (newState == newState.StopLoding)
         {
-
             newState = newState.NoLoding;
             FinishUi.SetActive(true);
-
         }
 
         food.text = foodNUm.ToString();
         wood.text = woodNum.ToString();
         rock.text = RockNum.ToString();
+
+        DayRduce.text = $"{pepleNum * 200}/{pepleNum}";
     }
 
     void OnSliderValueChanged(float value)
     {
-        if (pepleNum <= 29)
-        {
-            int peple = (int)(value * pepleNum);
-            stay.transform.GetChild(3).GetComponent<Text>().text = "派遣人数：" + peple;
-            stay.transform.GetChild(4).GetComponent<Text>().text = "需要消耗食物：" + (peple * 200);
-        }
-        else {
+        int maxPeplePerSegment = Mathf.Min(pepleNum, 29); // 每个滑块段的最大派遣人数
+        int peple = Mathf.CeilToInt(value * maxPeplePerSegment); // 根据滑块值计算派遣人数
+        int foodCost = peple * 200; // 计算食物消耗量
 
-            int peple = (int)(value * 29);
-            stay.transform.GetChild(3).GetComponent<Text>().text = "派遣人数：" + peple;
-            stay.transform.GetChild(4).GetComponent<Text>().text = "需要消耗食物：" + (peple * 200);
+        stay.transform.GetChild(3).GetComponent<Text>().text = $"派遣人数:{peple}"; 
+        stay.transform.GetChild(4).GetComponent<Text>().text = $"需要消耗食物:{foodCost}";
+    }
+
+    void UpdateSliderStep()
+    {
+
+        // 动态设置滑块的步长
+        if (pepleNum > 0)
+        {
+            stay.wholeNumbers = false;
+
+            stay.value = 1f / pepleNum;
         }
-      
-       
+        else
+        {
+            stay.value = 0;
+        }
+
+        stay.value = 0;
     }
 
     private IEnumerator AfterLoding(int x)
     {
-
         yield return null;
-
-        // Trigger the event with a parameter
-        EventWithLoding?.Invoke(x * 8 + 50); // 传递秒数
-
+        EventWithLoding?.Invoke(x * 8 + 50);
     }
 
     private IEnumerator AfterIng(int x)
     {
         yield return null;
-
-        // Trigger the event with a parameter
-        EventWithIng?.Invoke(x); // 传递秒数
-
+        EventWithIng?.Invoke(x);
     }
+
     int WodNum, RocNum, losePeople, getPeople;
-    void GetNewObejects(int x) {
-
+    void GetNewObejects(int x)
+    {
         int AllObejects = (int)((NewDays * 0.8 * (x * 8 + 50)) / 0.7);
-         WodNum = (int)(AllObejects * 0.2);
-         RocNum = AllObejects - WodNum;
+        WodNum = (int)(AllObejects * 0.2);
+        RocNum = AllObejects - WodNum;
 
-         losePeople = 0;
-         getPeople = 0;
-
-
-        if (x < 29)
-        {
-             losePeople = 1;
-             getPeople =  2;
-
-        }
-        else {
-             losePeople = 0;
-             getPeople = 1;
-        }
+        losePeople = x < 29 ? 1 : 0;
+        getPeople = x < 29 ? 2 : 1;
 
         Transform reduce = FinishUi.transform.GetChild(0).GetChild(0);
         Transform add = FinishUi.transform.GetChild(0).GetChild(1);
 
-        reduce.GetChild(0).GetComponent<Text>().text = "人员损耗:" + losePeople;
-        reduce.GetChild(1).GetComponent<Text>().text = "食物消耗:" + losePeople * 200;
+        reduce.GetChild(0).GetComponent<Text>().text =  $"人员损耗:{losePeople}";
+        reduce.GetChild(1).GetComponent<Text>().text = $"食物消耗:{losePeople * 200}";
 
-        add.GetChild(0).GetComponentInChildren<Text>().text = WodNum.ToString(); 
+        add.GetChild(0).GetComponentInChildren<Text>().text = WodNum.ToString();
         add.GetChild(1).GetComponentInChildren<Text>().text = RocNum.ToString();
         add.GetChild(2).GetComponentInChildren<Text>().text = getPeople.ToString();
-
     }
 
-    public void addNewObeject() {
-
+    public void addNewObeject()
+    {
         FinishUi.SetActive(false);
         woodNum += WodNum;
         RockNum += RocNum;
         pepleNum += getPeople;
+        UpdateSliderStep(); // 更新滑块步长
+    }
 
-    } 
-    
+    Dictionary<int, int[,]> InquadationData = new Dictionary<int, int[,]>
+{
+    { 5, new int[,] { { 8100, 40000,1} } },
+    { 10, new int[,] { { 16200, 80000,2} } },
+    { 15, new int[,] { { 36800, 162540,3} } },
+    { 20, new int[,] { { 48000, 216540,3} } },
+    { 25, new int[,] { { 59200, 270540,3} } },
+    { 29, new int[,] { { 68160, 313740,3} } }
+};
+
+
+    public void Inquadation() {
+
+        if (NewDays < 29) {
+            int foodData = InquadationData[NewDays][0, 0]; // 访问第一个元素
+
+            int denfenceData = InquadationData[NewDays][0, 1]; // 访问第一个元素
+
+            if (foodNUm >= foodData && Defence >= denfenceData)
+            {
+                GameObject[] walls = GetObjects("Wall");
+
+                GameObject[] foods = GetObjects("FoodMaker");
+
+                for (int i = 0; i < InquadationData[NewDays][0, 2];i++) {
+
+                    Destroy(walls[UnityEngine.Random.Range(0, walls.Length)]);
+
+                    Destroy(foods[UnityEngine.Random.Range(0, foods.Length)]);
+
+                }
+
+                timerState = timerState.NoIng;
+
+                Debug.Log($"恭喜你撑过去了风暴");
+            }
+            else
+            {
+
+                Debug.Log($"你存活了{NewDays}天");
+            }
+        }
+        else {
+
+            Debug.Log($"恭喜过关");
+        }
+
+
+       
+
+    }
+
+    GameObject[] GetObjects(string nameSubstring)
+    {
+        // 查找所有带有 Maker 脚本的对象并过滤出名字包含指定字符串的对象
+        return GameObject.FindObjectsOfType<Maker>()
+                     .Where(obj => obj.gameObject.name.Contains(nameSubstring))
+                     .Select(obj => obj.gameObject)
+                     .ToArray();
+    }
+
+    public void GetPeopleDayFood() {
+        Debug.Log($"今天消耗了{pepleNum * 200}物资");
+        foodNUm -= pepleNum * 200;
+    }
+
 }

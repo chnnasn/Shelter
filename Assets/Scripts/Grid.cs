@@ -170,6 +170,9 @@ public class Grid
     private void SetupBuildUI(GameObject cube, Vector3 position)
     {
         GameManager.instance.BuildUi.SetActive(true);
+
+        UIoutline outline = GameManager.instance.BuildUi.GetComponentInChildren<UIoutline>();
+
         RectTransform uiElement = GameManager.instance.BuildUi.transform.GetChild(1).GetChild(0).GetComponent<RectTransform>();
         Transform h = uiElement.transform.GetChild(0);
         Transform bu = uiElement.transform.GetChild(1);
@@ -183,6 +186,8 @@ public class Grid
         // 使用网格坐标计算UI元素位置
         Vector2Int gridCoord = GetGridCoordinate(position);
         uiElement.localPosition = new Vector3(gridCoord.x * size, gridCoord.y * size, 0) * (float)((size * 10 + (size / 2 - 0.2) * 10) / size);
+
+        outline.Blink();
     }
 
     private void SetupBuildUIElements(Transform h, Transform bu, int x)

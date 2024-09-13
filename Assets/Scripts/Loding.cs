@@ -5,7 +5,6 @@ using UnityEngine.UI;
 public class Loding : MonoBehaviour
 {
     public float moveSpeed; // 移动速度（单位：像素/秒）
-    private int time;
 
     private const int secondsPerDay = 300; // 300 秒为一天
     private const float secondsPerHour = secondsPerDay / 24f; // 计算每小时的秒数，使用浮点数除法
@@ -20,17 +19,30 @@ public class Loding : MonoBehaviour
     {
         GameManager.EventWithLoding -= HandleBroadcastEventWithParam;
     }
+    int time;
 
     private void HandleBroadcastEventWithParam(int totalSeconds)
     {
-        time = totalSeconds;
+
         Transform loding = transform.GetChild(0).GetChild(1);
         Transform timer = transform.GetChild(0).GetChild(0);
-        loding.gameObject.SetActive(true);
 
+        time = totalSeconds;
+
+        if(!loding.gameObject.activeSelf) {
+            StartCoroutine(LodinngMove(loding, time));
+        }
         // Start both the countdown and the movement coroutines
         StartCoroutine(CountdownCoroutine(totalSeconds, timer.GetComponent<Text>()));
-        StartCoroutine(LodinngMove(loding, totalSeconds));
+    }
+
+
+    public void LodingMove()
+    {
+        Transform loding = transform.GetChild(0).GetChild(1);
+        if (!loding.gameObject.activeSelf) {
+            StartCoroutine(LodinngMove(loding, time));
+        }
     }
 
     IEnumerator CountdownCoroutine(int totalSeconds, Text timerText)
@@ -51,7 +63,6 @@ public class Loding : MonoBehaviour
             // Decrease the totalSeconds
             totalSeconds--;
 
-            time = totalSeconds;
         }
 
         // Final update to 00:00:00 when the countdown ends
@@ -65,41 +76,38 @@ public class Loding : MonoBehaviour
 
     IEnumerator LodinngMove(Transform loding, int totalSeconds)
     {
+        loding.gameObject.SetActive(true);
+
         Vector3 startPosition = loding.position;
         Vector3 endPosition = loding.transform.GetChild(0).position; // Assuming endPoint is where it should end, update as needed
         Text text = loding.GetComponent<Text>();
         Color color = text.color;
 
-        while (time > 0)
+        float elapsedTime = 0f;
+        color.a = 1f; // Set alpha to fully opaque
+        text.color = color;
+
+        while (elapsedTime < totalSeconds)
         {
-            float elapsedTime = 0f;
-            color.a = 1f; // Set alpha to fully opaque
+            float t = elapsedTime / totalSeconds; // Normalize time to [0, 1]
+
+            color = text.color;
+            color.a = (1 - t); // Gradually fade out
             text.color = color;
 
-            while (elapsedTime < totalSeconds)
-            {
-                float t = elapsedTime / totalSeconds; // Normalize time to [0, 1]
+            loding.position = Vector3.Lerp(startPosition, endPosition, t);
 
-                color = text.color;
-                color.a = (1 - t); // Gradually fade out
-                text.color = color;
+            // Wait for the next frame
+            yield return null;
 
-                loding.position = Vector3.Lerp(startPosition, endPosition, t);
-
-                // Wait for the next frame
-                yield return null;
-
-                // Increase elapsed time
-                elapsedTime += Time.deltaTime * moveSpeed;
-            }
-
-            // Ensure the final position is exact
-            loding.position = endPosition;
+            // Increase elapsed time
+            elapsedTime += Time.deltaTime * moveSpeed;
         }
+
+        // Ensure the final position is exact
+        loding.position = endPosition;
 
         loding.position = startPosition;
         loding.gameObject.SetActive(false);
-        GameManager.instance.newState = newState.StopLoding;
-        StopAllCoroutines();
     }
 }

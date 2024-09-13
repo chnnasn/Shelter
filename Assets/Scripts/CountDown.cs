@@ -9,7 +9,7 @@ public class CountDown : MonoBehaviour
     {
         { 0, 1500 },
         { 5, 1500 },
-        { 10, 1500},
+        { 10,1500},
         { 15,1500},
         { 20,1500},
         { 25,1200},
@@ -50,6 +50,9 @@ public class CountDown : MonoBehaviour
             if (totalSeconds % secondsPerDay == 0)
             {
                 GameManager.NewDays++;
+                if (GameManager.NewDays != 1) {
+                    GameManager.instance.GetPeopleDayFood();
+                }
             }
 
             // 等待一秒
@@ -62,8 +65,8 @@ public class CountDown : MonoBehaviour
         // 倒计时结束时，更新为 00:00:00:00
         timerText.text = $"00:00:00";
 
-        GameManager.instance.newState = newState.StopLoding;
+        GameManager.instance.Inquadation();
 
-        
+
     }
 }

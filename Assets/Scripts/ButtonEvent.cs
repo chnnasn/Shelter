@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class ButtonEvent : MonoBehaviour, IPointerClickHandler
 {
@@ -23,8 +24,10 @@ public class ButtonEvent : MonoBehaviour, IPointerClickHandler
             {"BuBuild", HandleBuildButton},
             {"DisFin", HandleDispatchFinishButton},
             {"FinishBu", () => GameManager.instance.addNewObeject()},
-            {"Quit", Application.Quit},
-            {"Continue", () => { Time.timeScale = 1; GameManager.instance.SetUi.SetActive(false); }}
+            {"Quit", () => Application.Quit()},
+            {"Continue", () => { Time.timeScale = 1; GameManager.instance.SetUi.SetActive(false); }},
+            {"ScStart", () => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1)},
+            {"ScQuit", () => Application.Quit()}
         };
     }
 
@@ -42,6 +45,11 @@ public class ButtonEvent : MonoBehaviour, IPointerClickHandler
         if (GameManager.instance.newState == newState.NoLoding)
         {
             GameManager.instance.DispatchUi.SetActive(true);
+        }
+        else
+        {
+            Loding loding = FindObjectOfType<Loding>();
+            loding.LodingMove();
         }
     }
 
