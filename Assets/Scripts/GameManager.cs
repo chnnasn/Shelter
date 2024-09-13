@@ -170,15 +170,20 @@ public class GameManager : MonoBehaviour
         EventWithIng?.Invoke(x);
     }
 
-    int WodNum, RocNum, losePeople, getPeople;
+    int FinilyNum , WodNum , RocNum;
     void GetNewObejects(int x)
     {
-        int AllObejects = (int)((NewDays * 0.8 * (x * 8 + 50)) / 0.7);
-        WodNum = (int)(AllObejects * 0.2);
-        RocNum = AllObejects - WodNum;
 
-        losePeople = x < 29 ? 1 : 0;
-        getPeople = x < 29 ? 2 : 1;
+        int AllObejects = (int)((x * NewDays * 0.8 * (x * 8 + 50)) / 0.7);
+
+         WodNum = (int)(AllObejects * 0.2);
+         RocNum = AllObejects - WodNum;
+
+        int losePeople = x < 29 ? 1 : 0;
+
+        int getPeople = x < 29 ? 2 : 1;
+
+        FinilyNum = pepleNum + x - losePeople + getPeople;
 
         Transform reduce = FinishUi.transform.GetChild(0).GetChild(0);
         Transform add = FinishUi.transform.GetChild(0).GetChild(1);
@@ -196,7 +201,7 @@ public class GameManager : MonoBehaviour
         FinishUi.SetActive(false);
         woodNum += WodNum;
         RockNum += RocNum;
-        pepleNum += getPeople;
+        pepleNum = FinilyNum;
         UpdateSliderStep(); // 更新滑块步长
     }
 

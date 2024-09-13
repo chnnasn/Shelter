@@ -543,10 +543,10 @@ MonoBehaviour:
   rock: {fileID: 1291365325}
   stay: {fileID: 649890727}
   DayRduce: {fileID: 1783177541}
-  woodNum: 20
-  RockNum: 30
+  woodNum: 10
+  RockNum: 10
   pepleNum: 1
-  foodNUm: 200
+  foodNUm: 400
   newState: 2
   timerState: 0
 --- !u!4 &229450226
