@@ -44,12 +44,23 @@ public class ButtonEvent : MonoBehaviour, IPointerClickHandler
     {
         if (GameManager.instance.newState == newState.NoLoding)
         {
-            GameManager.instance.DispatchUi.SetActive(true);
+
+            if (!GameManager.instance.FinishUi.activeSelf && !GameManager.instance.BuildUi.activeSelf)
+            {
+
+                GameManager.instance.DispatchUi.SetActive(true);
+            }
+            
         }
         else
         {
-            Loding loding = FindObjectOfType<Loding>();
-            loding.LodingMove();
+            if (GameManager.instance.FinishUi.activeSelf && GameManager.instance.BuildUi.activeSelf)
+            {
+                Loding loding = FindObjectOfType<Loding>();
+                loding.LodingMove();
+
+            }
+           
         }
     }
 

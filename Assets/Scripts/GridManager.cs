@@ -48,7 +48,7 @@ public class GridManager : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            if (!EventSystem.current.IsPointerOverGameObject()) {
+            if (!EventSystem.current.IsPointerOverGameObject() && !GameManager.instance.DispatchUi.activeSelf && !GameManager.instance.FinishUi.activeSelf) {
 
                 Vector3 mousePosition = Input.mousePosition;
 
