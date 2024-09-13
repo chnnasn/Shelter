@@ -23,7 +23,7 @@ public class UIOutlineEditor : Editor
     private bool foldoutAlphas = true;
 
     private SerializedProperty blinkSpeed;
-    private SerializedProperty StartBlink;
+
     private void OnEnable()
     {
         lineColor = serializedObject.FindProperty("lineColor");

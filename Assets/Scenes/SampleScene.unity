@@ -544,7 +544,7 @@ MonoBehaviour:
   stay: {fileID: 649890727}
   DayRduce: {fileID: 1783177541}
   woodNum: 20
-  RockNum: 20
+  RockNum: 30
   pepleNum: 1
   foodNUm: 200
   newState: 2

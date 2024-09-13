@@ -65,8 +65,7 @@ public class Loding : MonoBehaviour
 
         }
 
-        // Final update to 00:00:00 when the countdown ends
-        timerText.text = "æ‡¿Î√∞œ’Ω· ¯£∫\n00:00:00";
+        // Final update to 00:00:00 when the countdown end
 
         timerText.text = "√∞œ’";
         GameManager.instance.newState = newState.StopLoding;

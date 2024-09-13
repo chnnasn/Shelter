@@ -219,13 +219,15 @@ public class Grid
         GameObject h = Object.Instantiate(GridManager.instance.Builds[x], cube.transform.position, Quaternion.identity, cube.transform);
         h.transform.localScale = Vector3.one;
 
-        if (x == 1)
-        {
-            GameManager.instance.woodNum -= getNewNum(5, h.transform);
-        }
-        else
-        {
-            GameManager.instance.RockNum -= getNewNum(2, h.transform);
+        if (x !=0) {
+            if (x == 1)
+            {
+                GameManager.instance.woodNum -= getNewNum(5, h.transform);
+            }
+            else
+            {
+                GameManager.instance.RockNum -= getNewNum(2, h.transform);
+            }
         }
     }
 
