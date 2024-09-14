@@ -65,7 +65,7 @@ public class CountDown : MonoBehaviour
         // 倒计时结束时，更新为 00:00:00:00
         timerText.text = $"00:00:00";
 
-        GameManager.instance.Inquadation();
+        GameManager.instance.startRain();
 
 
     }

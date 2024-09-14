@@ -62,8 +62,11 @@ public class GameManager : MonoBehaviour
     public static event Action<int> EventWithLoding;
     public static event Action<int> EventWithIng;
 
+    public ParticleSystem Rain;
+
     private void Awake()
     {
+
         if (instance != null)
         {
             Destroy(gameObject);
@@ -76,11 +79,11 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-
+        Rain.Stop();
         timerState = timerState.NoIng;
         newState = newState.NoLoding;
         stay.onValueChanged.AddListener(OnSliderValueChanged);
-        UpdateSliderStep(); // ³õÊ¼»¯»¬¿é²½³¤
+        UpdateSliderStep(); // åˆå§‹åŒ–æ»‘å—æ­¥é•¿
     }
 
     void Update()
@@ -89,7 +92,8 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space)) {
 
             Time.timeScale++;
-        
+            
+
         }
 
         if (timerState == timerState.NoIng)
@@ -100,7 +104,7 @@ public class GameManager : MonoBehaviour
 
         if (newState == newState.startLoding)
         {
-            int peple = Mathf.CeilToInt(stay.value * Mathf.Min(pepleNum, 29)); // Ê¹ÓÃ»¬¿éÖµºÍ×î´óÈËÊı¼ÆËã
+            int peple = Mathf.CeilToInt(stay.value * Mathf.Min(pepleNum, 29)); // ä½¿ç”¨æ»‘å—å€¼å’Œæœ€å¤§äººæ•°è®¡ç®—
 
             if (peple != 0 && peple <= pepleNum && peple * 200 <= foodNUm)
             {
@@ -111,13 +115,13 @@ public class GameManager : MonoBehaviour
                 stay.value = 0;
 
                 newState = newState.Loding;
-                UpdateSliderStep(); // ¸üĞÂ»¬¿é²½³¤
+                UpdateSliderStep(); // æ›´æ–°æ»‘å—æ­¥é•¿
             }
             else
             {
                 stay.value = 0;
                 newState = newState.NoLoding;
-                UpdateSliderStep(); // ¸üĞÂ»¬¿é²½³¤
+                UpdateSliderStep(); // æ›´æ–°æ»‘å—æ­¥é•¿
             }
         }
 
@@ -136,18 +140,18 @@ public class GameManager : MonoBehaviour
 
     void OnSliderValueChanged(float value)
     {
-        int maxPeplePerSegment = Mathf.Min(pepleNum, 29); // Ã¿¸ö»¬¿é¶ÎµÄ×î´óÅÉÇ²ÈËÊı
-        int peple = Mathf.CeilToInt(value * maxPeplePerSegment); // ¸ù¾İ»¬¿éÖµ¼ÆËãÅÉÇ²ÈËÊı
-        int foodCost = peple * 200; // ¼ÆËãÊ³ÎïÏûºÄÁ¿
+        int maxPeplePerSegment = Mathf.Min(pepleNum, 29); // æ¯ä¸ªæ»‘å—æ®µçš„æœ€å¤§æ´¾é£äººæ•°
+        int peple = Mathf.CeilToInt(value * maxPeplePerSegment); // æ ¹æ®æ»‘å—å€¼è®¡ç®—æ´¾é£äººæ•°
+        int foodCost = peple * 200; // è®¡ç®—é£Ÿç‰©æ¶ˆè€—é‡
 
-        stay.transform.GetChild(3).GetComponent<Text>().text = $"ÅÉÇ²ÈËÊı:{peple}"; 
-        stay.transform.GetChild(4).GetComponent<Text>().text = $"ĞèÒªÏûºÄÊ³Îï:{foodCost}";
+        stay.transform.GetChild(3).GetComponent<Text>().text = $"æ´¾é£äººæ•°:{peple}"; 
+        stay.transform.GetChild(4).GetComponent<Text>().text = $"éœ€è¦æ¶ˆè€—é£Ÿç‰©:{foodCost}";
     }
 
     void UpdateSliderStep()
     {
 
-        // ¶¯Ì¬ÉèÖÃ»¬¿éµÄ²½³¤
+        // åŠ¨æ€è®¾ç½®æ»‘å—çš„æ­¥é•¿
         if (pepleNum > 0)
         {
             stay.wholeNumbers = false;
@@ -192,8 +196,8 @@ public class GameManager : MonoBehaviour
         Transform reduce = FinishUi.transform.GetChild(0).GetChild(0);
         Transform add = FinishUi.transform.GetChild(0).GetChild(1);
 
-        reduce.GetChild(0).GetComponent<Text>().text =  $"ÈËÔ±ËğºÄ:{losePeople}";
-        reduce.GetChild(1).GetComponent<Text>().text = $"Ê³ÎïÏûºÄ:{losePeople * 200}";
+        reduce.GetChild(0).GetComponent<Text>().text =  $"äººå‘˜æŸè€—:{losePeople}";
+        reduce.GetChild(1).GetComponent<Text>().text = $"é£Ÿç‰©æ¶ˆè€—:{losePeople * 200}";
 
         add.GetChild(0).GetComponentInChildren<Text>().text = WodNum.ToString();
         add.GetChild(1).GetComponentInChildren<Text>().text = RocNum.ToString();
@@ -206,7 +210,17 @@ public class GameManager : MonoBehaviour
         woodNum += WodNum;
         RockNum += RocNum;
         pepleNum = FinilyNum;
-        UpdateSliderStep(); // ¸üĞÂ»¬¿é²½³¤
+        UpdateSliderStep(); // æ›´æ–°æ»‘å—æ­¥é•¿
+    }
+
+
+
+
+
+    public void startRain()
+    {
+
+        StartCoroutine(ControlGravityParticleSystem());
     }
 
     Dictionary<int, int[,]> InquadationData = new Dictionary<int, int[,]>
@@ -220,14 +234,14 @@ public class GameManager : MonoBehaviour
 };
 
 
-    public void Inquadation() {
+     void Inquadation() {
 
         string text = "";
 
         if (NewDays < 29) {
-            int foodData = InquadationData[NewDays][0, 0]; // ·ÃÎÊµÚÒ»¸öÔªËØ
+            int foodData = InquadationData[NewDays][0, 0]; // è®¿é—®ç¬¬ä¸€ä¸ªå…ƒç´ 
 
-            int denfenceData = InquadationData[NewDays][0, 1]; // ·ÃÎÊµÚÒ»¸öÔªËØ
+            int denfenceData = InquadationData[NewDays][0, 1]; // è®¿é—®ç¬¬ä¸€ä¸ªå…ƒç´ 
 
             if (foodNUm >= foodData && Defence >= denfenceData)
             {
@@ -245,14 +259,14 @@ public class GameManager : MonoBehaviour
 
                 Win = true;
 
-                text = $"¹§Ï²Äã³Å¹ıÈ¥ÁË·ç±©";
+                text = $"æ­å–œä½ æ’‘è¿‡å»äº†é£æš´";
 
             }
             else
             {
                 Win = false;
 
-                text = $"Äã´æ»îÁË{NewDays}Ìì"; 
+                text = $"ä½ å­˜æ´»äº†{NewDays}å¤©"; 
 
 
             }
@@ -261,7 +275,7 @@ public class GameManager : MonoBehaviour
 
             Win = false;
 
-            text = $"¹§Ï²¹ı¹Ø";
+            text = $"æ­å–œè¿‡å…³";
 
         }
 
@@ -276,7 +290,7 @@ public class GameManager : MonoBehaviour
 
     GameObject[] GetObjects(string nameSubstring)
     {
-        // ²éÕÒËùÓĞ´øÓĞ Maker ½Å±¾µÄ¶ÔÏó²¢¹ıÂË³öÃû×Ö°üº¬Ö¸¶¨×Ö·û´®µÄ¶ÔÏó
+        // æŸ¥æ‰¾æ‰€æœ‰å¸¦æœ‰ Maker è„šæœ¬çš„å¯¹è±¡å¹¶è¿‡æ»¤å‡ºåå­—åŒ…å«æŒ‡å®šå­—ç¬¦ä¸²çš„å¯¹è±¡
         return GameObject.FindObjectsOfType<Maker>()
                      .Where(obj => obj.gameObject.name.Contains(nameSubstring))
                      .Select(obj => obj.gameObject)
@@ -287,4 +301,62 @@ public class GameManager : MonoBehaviour
         foodNUm -= pepleNum * 200;
     }
 
+
+    public float activeTime = 5f;
+
+    // é€æ¸åœæ­¢çš„æŒç»­æ—¶é—´
+    public float fadeOutTime = 2f;
+
+    public float RainBeforTime = 2f;
+
+    IEnumerator ControlGravityParticleSystem()
+    {
+
+        yield return new WaitForSeconds(RainBeforTime);
+
+        var emission = Rain.emission;
+        var main = Rain.main;
+
+        emission.rateOverTime = 150f;
+        main.gravityModifier = 5;
+
+        // å¯åŠ¨ç²’å­ç³»ç»Ÿ
+        Rain.Play();
+
+        // è®©ç²’å­ç³»ç»ŸæŒç»­è¿è¡ŒæŒ‡å®šçš„æ—¶é—´
+        yield return new WaitForSeconds(activeTime);
+
+        // é€æ¸å‡å°‘å‘å°„ç‡å’Œé‡åŠ›
+
+        // ä¿å­˜åˆå§‹å‘å°„ç‡å’Œé‡åŠ›
+        float initialRate = emission.rateOverTime.constant;
+        float initialGravity = main.gravityModifier.constant;
+
+        // å¼€å§‹é€æ¸å‡å°‘å‘å°„ç‡å’Œé‡åŠ›
+        for (float t = 0; t < fadeOutTime; t += Time.deltaTime)
+        {
+            // æ’å€¼è®¡ç®—æ–°çš„å‘å°„ç‡å’Œé‡åŠ›
+            float newRate = Mathf.Lerp(initialRate, 0f, t / fadeOutTime);
+            float newGravity = Mathf.Lerp(initialGravity, 0f, t / fadeOutTime);
+
+            // æ›´æ–°å‘å°„ç‡å’Œé‡åŠ›
+            emission.rateOverTime = newRate;
+            var gravity = main.gravityModifier;
+            gravity = newGravity;
+
+            yield return null;  // ç­‰å¾…ä¸‹ä¸€å¸§
+        }
+
+        // å®Œå…¨åœæ­¢å‘å°„
+        emission.rateOverTime = 0f;
+
+        // åœæ­¢ç²’å­ç³»ç»Ÿ
+        Rain.Stop();
+
+        Inquadation();
+
+    }
+
+
+ 
 }
