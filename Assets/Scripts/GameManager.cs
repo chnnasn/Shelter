@@ -284,7 +284,6 @@ public class GameManager : MonoBehaviour
     }
 
     public void GetPeopleDayFood() {
-        Debug.Log($"今天消耗了{pepleNum * 200}物资");
         foodNUm -= pepleNum * 200;
     }
 
