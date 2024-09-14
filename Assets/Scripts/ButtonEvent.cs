@@ -27,7 +27,8 @@ public class ButtonEvent : MonoBehaviour, IPointerClickHandler
             {"Quit", () => Application.Quit()},
             {"Continue", () => { Time.timeScale = 1; GameManager.instance.SetUi.SetActive(false); }},
             {"ScStart", () => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1)},
-            {"ScQuit", () => Application.Quit()}
+            {"ScQuit", () => Application.Quit()},
+            {"finalDataBu", getOtherData}
         };
     }
 
@@ -45,7 +46,7 @@ public class ButtonEvent : MonoBehaviour, IPointerClickHandler
         if (GameManager.instance.newState == newState.NoLoding)
         {
 
-            if (!GameManager.instance.FinishUi.activeSelf && !GameManager.instance.BuildUi.activeSelf)
+            if (!GameManager.instance.FinishUi.activeSelf && !GameManager.instance.BuildUi.activeSelf && !GameManager.instance.finalDataUi.activeSelf)
             {
 
                 GameManager.instance.DispatchUi.SetActive(true);
@@ -54,7 +55,7 @@ public class ButtonEvent : MonoBehaviour, IPointerClickHandler
         }
         else
         {
-            if (GameManager.instance.FinishUi.activeSelf && GameManager.instance.BuildUi.activeSelf)
+            if (!GameManager.instance.FinishUi.activeSelf && !GameManager.instance.BuildUi.activeSelf && !GameManager.instance.finalDataUi.activeSelf)
             {
                 Loding loding = FindObjectOfType<Loding>();
                 loding.LodingMove();
@@ -80,5 +81,25 @@ public class ButtonEvent : MonoBehaviour, IPointerClickHandler
         {
             GameManager.instance.newState = newState.startLoding;
         }
+    }
+
+    private void getOtherData() {
+
+        Time.timeScale = 1;
+
+        if (GameManager.instance.Win) {
+
+
+            GameManager.instance. timerState = timerState.NoIng;
+
+            GameManager.instance.finalDataUi.SetActive(false);
+        }
+        else {
+
+            SceneManager.LoadScene(0);
+
+        }
+    
+    
     }
 }

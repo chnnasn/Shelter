@@ -37,8 +37,12 @@ public class GameManager : MonoBehaviour
     public Text rock;
     [HideInInspector]
     public Slider stay;
-
+    [HideInInspector]
+    public GameObject finalDataUi;
+    [HideInInspector]
     public Text DayRduce;
+    [HideInInspector]
+    public bool Win = false;
 
     public int woodNum;
     public int RockNum;
@@ -51,9 +55,9 @@ public class GameManager : MonoBehaviour
 
     public static GameManager instance;
 
-    public static int NewDays = 0;
+    public  int NewDays = 0;
 
-    public static int Defence = 0;
+    public  int Defence = 0;
 
     public static event Action<int> EventWithLoding;
     public static event Action<int> EventWithIng;
@@ -218,6 +222,8 @@ public class GameManager : MonoBehaviour
 
     public void Inquadation() {
 
+        string text = "";
+
         if (NewDays < 29) {
             int foodData = InquadationData[NewDays][0, 0]; // 访问第一个元素
 
@@ -237,23 +243,34 @@ public class GameManager : MonoBehaviour
 
                 }
 
-                timerState = timerState.NoIng;
+                Win = true;
 
-                Debug.Log($"恭喜你撑过去了风暴");
+                text = $"恭喜你撑过去了风暴";
+
             }
             else
             {
+                Win = false;
 
-                Debug.Log($"你存活了{NewDays}天");
+                text = $"你存活了{NewDays}天"; 
+
+
             }
         }
         else {
 
-            Debug.Log($"恭喜过关");
+            Win = false;
+
+            text = $"恭喜过关";
+
         }
 
+        finalDataUi.GetComponentInChildren<Text>().text = text;
 
-       
+        finalDataUi.SetActive(true);
+
+        Time.timeScale = 0;
+
 
     }
 

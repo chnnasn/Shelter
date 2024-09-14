@@ -49,8 +49,8 @@ public class CountDown : MonoBehaviour
             // 每天过去后打印Debug信息
             if (totalSeconds % secondsPerDay == 0)
             {
-                GameManager.NewDays++;
-                if (GameManager.NewDays != 1) {
+                GameManager.instance.NewDays++;
+                if (GameManager.instance.NewDays != 1) {
                     GameManager.instance.GetPeopleDayFood();
                 }
             }

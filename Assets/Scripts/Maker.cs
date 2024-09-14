@@ -44,7 +44,7 @@ public class Maker : MonoBehaviour
                 x++;
             }
 
-            int num = GameManager.NewDays * 20 * 3 + 3;
+            int num = GameManager.instance.NewDays * 20 * 3 + 3;
             text.text = $"+{num}";
             yield return new WaitForSeconds(0.2f); // Delay before restarting the loop
             text.gameObject.SetActive(true);
@@ -100,7 +100,7 @@ public class Maker : MonoBehaviour
                 x++;
             }
 
-            int num = (int)(GameManager.NewDays * 200 * 0.7) + 200;
+            int num = (int)(GameManager.instance.NewDays * 200 * 0.7) + 200;
             text.text = $"+{num}";
             yield return new WaitForSeconds(0.2f); // Delay before restarting the loop
             text.gameObject.SetActive(true);
@@ -130,7 +130,7 @@ public class Maker : MonoBehaviour
             text.gameObject.SetActive(false);
             text.transform.position = startPosition;
 
-            GameManager.Defence += num;
+            GameManager.instance.Defence += num;
 
         }
 
