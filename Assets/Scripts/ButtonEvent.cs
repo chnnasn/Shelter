@@ -28,7 +28,8 @@ public class ButtonEvent : MonoBehaviour, IPointerClickHandler
             {"Continue", () => { Time.timeScale = 1; GameManager.instance.SetUi.SetActive(false); }},
             {"ScStart", () => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1)},
             {"ScQuit", () => Application.Quit()},
-            {"finalDataBu", getOtherData}
+            {"finalDataBu", getOtherData},
+            { "Return",() =>  {Time.timeScale = 1;SceneManager.LoadScene(0); }}
         };
     }
 
